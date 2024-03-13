@@ -20,6 +20,7 @@ from base.func_xinghuo_web import XinghuoWeb
 from configuration import Config
 from constants import ChatType
 from job_mgmt import Job
+import asyncio
 
 __version__ = "39.0.10.1"
 
@@ -76,12 +77,12 @@ class Robot(Job):
             return all(value is not None for key, value in args.items() if key != 'proxy')
         return False
 
-    def toAt(self, msg: WxMsg) -> bool:
+    async def toAt(self, msg: WxMsg) -> bool:
         """处理被 @ 消息
         :param msg: 微信消息结构
         :return: 处理状态，`True` 成功，`False` 失败
         """
-        return self.toChitchat(msg)
+        return await self.toChitchat(msg)
 
     def toChengyu(self, msg: WxMsg) -> bool:
         """
@@ -110,14 +111,14 @@ class Robot(Job):
 
         return status
 
-    def toChitchat(self, msg: WxMsg) -> bool:
+    async def toChitchat(self, msg: WxMsg) -> bool:
         """闲聊，接入 ChatGPT
         """
         if not self.chat:  # 没接 ChatGPT，固定回复
             rsp = "你@我干嘛？"
         else:  # 接了 ChatGPT，智能回复
             q = re.sub(r"@.*?[\u2005|\s]", "", msg.content).replace(" ", "")
-            rsp = self.chat.get_answer(q, (msg.roomid if msg.from_group() else msg.sender))
+            rsp = await self.chat.get_answer(q, (msg.roomid if msg.from_group() else msg.sender))
 
         if rsp:
             if msg.from_group():
@@ -130,7 +131,7 @@ class Robot(Job):
             self.LOG.error(f"无法从 ChatGPT 获得答案")
             return False
 
-    def processMsg(self, msg: WxMsg) -> None:
+    async def processMsg(self, msg: WxMsg) -> None:
         """当接收到消息的时候，会调用本方法。如果不实现本方法，则打印原始消息。
         此处可进行自定义发送的内容,如通过 msg.content 关键字自动获取当前天气信息，并发送到对应的群组@发送者
         群号：msg.roomid  微信ID：msg.sender  消息内容：msg.content
@@ -167,7 +168,7 @@ class Robot(Job):
                     self.config.reload()
                     self.LOG.info("已更新")
             else:
-                self.toChitchat(msg)  # 闲聊
+                await self.toChitchat(msg)  # 闲聊
 
     def onMsg(self, msg: WxMsg) -> int:
         try:
