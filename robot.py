@@ -20,6 +20,7 @@ from base.func_xinghuo_web import XinghuoWeb
 from configuration import Config
 from constants import ChatType
 from job_mgmt import Job
+import asyncio
 
 __version__ = "39.0.10.1"
 
@@ -110,14 +111,14 @@ class Robot(Job):
 
         return status
 
-    def toChitchat(self, msg: WxMsg) -> bool:
+    async def toChitchat(self, msg: WxMsg) -> bool:
         """闲聊，接入 ChatGPT
         """
         if not self.chat:  # 没接 ChatGPT，固定回复
             rsp = "你@我干嘛？"
         else:  # 接了 ChatGPT，智能回复
             q = re.sub(r"@.*?[\u2005|\s]", "", msg.content).replace(" ", "")
-            rsp = self.chat.get_answer(q, (msg.roomid if msg.from_group() else msg.sender))
+            rsp = await self.chat.get_answer(q, (msg.roomid if msg.from_group() else msg.sender))
 
         if rsp:
             if msg.from_group():
