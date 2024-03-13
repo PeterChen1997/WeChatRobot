@@ -195,7 +195,8 @@ class Robot(Job):
                     self.LOG.error(f"Receiving message error: {e}")
 
         self.wcf.enable_receiving_msg()
-        Thread(target=innerProcessMsg, name="GetMessage", args=(self.wcf,), daemon=True).start()
+        # Thread(target=innerProcessMsg, name="GetMessage", args=(self.wcf,), daemon=True).start()
+        asyncio.create_task(innerProcessMsg(self.wcf))
 
     def sendTextMsg(self, msg: str, receiver: str, at_list: str = "") -> None:
         """ 发送消息
