@@ -170,10 +170,10 @@ class Robot(Job):
             else:
                 await self.toChitchat(msg)  # 闲聊
 
-    def onMsg(self, msg: WxMsg) -> int:
+    async def onMsg(self, msg: WxMsg) -> int:
         try:
             self.LOG.info(msg)  # 打印信息
-            self.processMsg(msg)
+            await self.processMsg(msg)
         except Exception as e:
             self.LOG.error(e)
 
@@ -183,12 +183,12 @@ class Robot(Job):
         self.wcf.enable_recv_msg(self.onMsg)
 
     def enableReceivingMsg(self) -> None:
-        def innerProcessMsg(wcf: Wcf):
+        async def innerProcessMsg(wcf: Wcf):
             while wcf.is_receiving_msg():
                 try:
                     msg = wcf.get_msg()
                     self.LOG.info(msg)
-                    self.processMsg(msg)
+                    await self.processMsg(msg)
                 except Empty:
                     continue  # Empty message
                 except Exception as e:
