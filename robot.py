@@ -20,6 +20,7 @@ from base.func_xinghuo_web import XinghuoWeb
 from configuration import Config
 from constants import ChatType
 from job_mgmt import Job
+import asyncio
 
 __version__ = "39.0.10.1"
 
@@ -76,12 +77,15 @@ class Robot(Job):
             return all(value is not None for key, value in args.items() if key != 'proxy')
         return False
 
-    def toAt(self, msg: WxMsg) -> bool:
+    async def toAt(self, msg: WxMsg) -> bool:
         """处理被 @ 消息
         :param msg: 微信消息结构
         :return: 处理状态，`True` 成功，`False` 失败
         """
-        return self.toChitchat(msg)
+        asyncio.run(
+            self.toChitchat(msg)
+        )
+        return 
 
     def toChengyu(self, msg: WxMsg) -> bool:
         """
@@ -110,14 +114,14 @@ class Robot(Job):
 
         return status
 
-    def toChitchat(self, msg: WxMsg) -> bool:
+    async def toChitchat(self, msg: WxMsg) -> bool:
         """闲聊，接入 ChatGPT
         """
         if not self.chat:  # 没接 ChatGPT，固定回复
             rsp = "你@我干嘛？"
         else:  # 接了 ChatGPT，智能回复
             q = re.sub(r"@.*?[\u2005|\s]", "", msg.content).replace(" ", "")
-            rsp = self.chat.get_answer(q, (msg.roomid if msg.from_group() else msg.sender))
+            rsp = await self.chat.get_answer(q, (msg.roomid if msg.from_group() else msg.sender))
 
         if rsp:
             if msg.from_group():
@@ -167,12 +171,14 @@ class Robot(Job):
                     self.config.reload()
                     self.LOG.info("已更新")
             else:
+                asyncio.run(
                 self.toChitchat(msg)  # 闲聊
+                )
 
-    def onMsg(self, msg: WxMsg) -> int:
+    async def onMsg(self, msg: WxMsg) -> int:
         try:
             self.LOG.info(msg)  # 打印信息
-            self.processMsg(msg)
+            await self.processMsg(msg)
         except Exception as e:
             self.LOG.error(e)
 
