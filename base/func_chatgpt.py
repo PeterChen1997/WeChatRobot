@@ -3,6 +3,7 @@
 
 import logging
 from datetime import datetime
+import asyncio
 
 import httpx
 from openai import APIConnectionError, APIError, AuthenticationError, OpenAI
@@ -114,13 +115,19 @@ if __name__ == "__main__":
 
     chat = ChatGPT(config)
 
-    while True:
-        q = input(">>> ")
-        try:
-            time_start = datetime.now()  # 记录开始时间
-            print(chat.get_answer(q, "wxid"))
-            time_end = datetime.now()  # 记录结束时间
+    async def ask_question():
+        while True:
+            q = input(">>> ")
+            try:
+                time_start = datetime.now()
+                # 这里我们使用 await 来调用异步函数
+                answer = await chat.get_answer(q, "wxid")
+                print(answer)
+                time_end = datetime.now()
 
-            print(f"{round((time_end - time_start).total_seconds(), 2)}s")  # 计算的时间差为程序的执行时间，单位为秒/s
-        except Exception as e:
-            print(e)
+                print(f"{round((time_end - time_start).total_seconds(), 2)}s")
+            except Exception as e:
+                print(e)
+
+    # 运行事件循环
+    asyncio.run(ask_question())
