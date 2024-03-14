@@ -77,7 +77,7 @@ class Robot(Job):
             return all(value is not None for key, value in args.items() if key != 'proxy')
         return False
 
-    async def toAt(self, msg: WxMsg) -> bool:
+    def toAt(self, msg: WxMsg) -> bool:
         """处理被 @ 消息
         :param msg: 微信消息结构
         :return: 处理状态，`True` 成功，`False` 失败

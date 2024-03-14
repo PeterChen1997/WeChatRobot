@@ -57,6 +57,7 @@ class ChatGPT():
         rsp = ""
         try:
             rsp = await get_chat_response(self.conversation_list[wxid], self.key)
+            rsp = rsp.replace("\n\n", "\n")
             self.updateMessage(wxid, rsp, "bot")
 
         #     ret = self.client.chat.completions.create(model=self.model,
