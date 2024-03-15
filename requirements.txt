@@ -16,3 +16,4 @@ ipykernel
 google-generativeai
 zhipuai
 fastapi_poe==0.0.23
+flask

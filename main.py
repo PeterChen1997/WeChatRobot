@@ -10,6 +10,31 @@ from constants import ChatType
 from robot import Robot, __version__
 from wcferry import Wcf
 
+from flask import Flask, request, jsonify
+import threading
+
+app = Flask(__name__)
+
+
+@app.route('/', methods=['GET'])
+def hello_world():
+    return jsonify({"status": "success", "msg": "Hello world"}), 200
+
+@app.route('/send', methods=['POST'])
+def send_message():
+    # 这里可以使用全局变量 robot
+    data = request.json
+    message = data.get('message')
+    recipient = data.get('recipient', 'filehelper')  # 默认接收者为 'filehelper'
+    if message:
+        robot.sendTextMsg(message, recipient)
+        return jsonify({"status": "success", "msg": "Message sent"}), 200
+    else:
+        return jsonify({"status": "error", "msg": "Message is required"}), 400
+
+def run_flask_app():
+    app.run(port=8000, debug=True, use_reloader=False)
+
 
 def weather_report(robot: Robot) -> None:
     """模拟发送天气预报
@@ -36,8 +61,14 @@ def main(chat_type: int):
 
     signal.signal(signal.SIGINT, handler)
 
+    global robot
+
     robot = Robot(config, wcf, chat_type)
     robot.LOG.info(f"WeChatRobot【{__version__}】成功启动···")
+
+    # 启动 Flask 服务的线程
+    flask_thread = threading.Thread(target=run_flask_app, daemon=True)
+    flask_thread.start()
 
     # 机器人启动发送测试消息
     robot.sendTextMsg("机器人启动成功！", "filehelper") 
