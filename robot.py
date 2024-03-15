@@ -77,12 +77,15 @@ class Robot(Job):
             return all(value is not None for key, value in args.items() if key != 'proxy')
         return False
 
-    async def toAt(self, msg: WxMsg) -> bool:
+    def toAt(self, msg: WxMsg) -> bool:
         """处理被 @ 消息
         :param msg: 微信消息结构
         :return: 处理状态，`True` 成功，`False` 失败
         """
-        return await self.toChitchat(msg)
+        asyncio.run(
+            self.toChitchat(msg)
+        )
+        return 
 
     def toChengyu(self, msg: WxMsg) -> bool:
         """
@@ -131,7 +134,7 @@ class Robot(Job):
             self.LOG.error(f"无法从 ChatGPT 获得答案")
             return False
 
-    async def processMsg(self, msg: WxMsg) -> None:
+    def processMsg(self, msg: WxMsg) -> None:
         """当接收到消息的时候，会调用本方法。如果不实现本方法，则打印原始消息。
         此处可进行自定义发送的内容,如通过 msg.content 关键字自动获取当前天气信息，并发送到对应的群组@发送者
         群号：msg.roomid  微信ID：msg.sender  消息内容：msg.content
@@ -168,7 +171,9 @@ class Robot(Job):
                     self.config.reload()
                     self.LOG.info("已更新")
             else:
-                await self.toChitchat(msg)  # 闲聊
+                asyncio.run(
+                self.toChitchat(msg)  # 闲聊
+                )
 
     async def onMsg(self, msg: WxMsg) -> int:
         try:
@@ -183,20 +188,19 @@ class Robot(Job):
         self.wcf.enable_recv_msg(self.onMsg)
 
     def enableReceivingMsg(self) -> None:
-        async def innerProcessMsg(wcf: Wcf):
+        def innerProcessMsg(wcf: Wcf):
             while wcf.is_receiving_msg():
                 try:
                     msg = wcf.get_msg()
                     self.LOG.info(msg)
-                    await self.processMsg(msg)
+                    self.processMsg(msg)
                 except Empty:
                     continue  # Empty message
                 except Exception as e:
                     self.LOG.error(f"Receiving message error: {e}")
 
         self.wcf.enable_receiving_msg()
-        # Thread(target=innerProcessMsg, name="GetMessage", args=(self.wcf,), daemon=True).start()
-        asyncio.create_task(innerProcessMsg(self.wcf))
+        Thread(target=innerProcessMsg, name="GetMessage", args=(self.wcf,), daemon=True).start()
 
     def sendTextMsg(self, msg: str, receiver: str, at_list: str = "") -> None:
         """ 发送消息

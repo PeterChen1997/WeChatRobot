@@ -13,11 +13,11 @@ import json
 from fastapi_poe.types import ProtocolMessage
 from fastapi_poe.client import get_bot_response
 
-async def get_chat_response(messages, key: str):
+async def get_chat_response(messages, key: str, bot_name):
     # preset_message = ProtocolMessage(role="system", content="你是一位微信群中的小助手，现在你要按照你渊博的知识，回答下面的问题，同时注意返回内容的格式，换行使用 \n换行，请以精炼的语言回答提出的问题")
     # protocol_message = ProtocolMessage(role="user", content=message)
     response_text = ""
-    async for partial in get_bot_response(messages=messages, bot_name='GPT-4', api_key=key): 
+    async for partial in get_bot_response(messages=messages, bot_name=bot_name, api_key=key): 
         # Extract text from the raw_response field
         raw_response = json.loads(partial.raw_response['text'])
         text = raw_response.get('text', '')
@@ -56,8 +56,9 @@ class ChatGPT():
         self.updateMessage(wxid, question, "user")
         rsp = ""
         try:
-            rsp = await get_chat_response(self.conversation_list[wxid], self.key)
-            self.updateMessage(wxid, rsp, "assistant")
+            rsp = await get_chat_response(self.conversation_list[wxid], self.key,"GPT-4")
+            rsp = rsp.replace("\n\n", "\n")
+            self.updateMessage(wxid, rsp, "bot")
 
         #     ret = self.client.chat.completions.create(model=self.model,
         #                                               messages=self.conversation_list[wxid],
@@ -74,6 +75,12 @@ class ChatGPT():
         #     self.LOG.error(f"OpenAI API 返回了错误：{str(e1)}")
         except Exception as e0:
             self.LOG.error(f"发生未知错误：{str(e0)}")
+            try:
+                rsp = await get_chat_response(self.conversation_list[wxid], self.key, "GPT-3.5-Turbo")
+                rsp = rsp.replace("\n\n", "\n")
+                self.updateMessage(wxid, rsp, "bot")
+            except Exception as e0:
+                self.LOG.error(f"发生未知错误 2：{str(e0)}")
 
         return rsp
 
