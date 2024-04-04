@@ -14,9 +14,8 @@ from fastapi_poe.types import ProtocolMessage
 from fastapi_poe.client import get_bot_response
 
 async def get_chat_response(messages, key: str, bot_name):
-    # preset_message = ProtocolMessage(role="system", content="你是一位微信群中的小助手，现在你要按照你渊博的知识，回答下面的问题，同时注意返回内容的格式，换行使用 \n换行，请以精炼的语言回答提出的问题")
-    # protocol_message = ProtocolMessage(role="user", content=message)
     response_text = ""
+    print("Messages:", messages)
     async for partial in get_bot_response(messages=messages, bot_name=bot_name, api_key=key): 
         # Extract text from the raw_response field
         raw_response = json.loads(partial.raw_response['text'])
@@ -34,12 +33,8 @@ class ChatGPT():
         prompt = conf.get("prompt")
         self.model = conf.get("model", "gpt-3.5-turbo")
         self.LOG = logging.getLogger("ChatGPT")
-        # if proxy:
-        #     self.client = OpenAI(api_key=key, base_url=api, http_client=httpx.Client(proxy=proxy))
-        # else:
-        #     self.client = OpenAI(api_key=key, base_url=api)
         self.conversation_list = {}
-        self.system_content_msg = {"role": "system", "content": prompt}
+        # self.system_content_msg = {"role": "system", "content": "你是一位微信群中的小助手，现在你要按照你渊博的知识，回答下面的问题，同时注意返回内容的格式，不要使用 markdown，换行使用 \\n换行，请以精炼的语言回答提出的问题"}
 
     def __repr__(self):
         return 'ChatGPT'
@@ -59,20 +54,6 @@ class ChatGPT():
             rsp = await get_chat_response(self.conversation_list[wxid], self.key,"GPT-4")
             rsp = rsp.replace("\n\n", "\n")
             self.updateMessage(wxid, rsp, "bot")
-
-        #     ret = self.client.chat.completions.create(model=self.model,
-        #                                               messages=self.conversation_list[wxid],
-        #                                               temperature=0.2)
-        #     rsp = ret.choices[0].message.content
-        #     rsp = rsp[2:] if rsp.startswith("\n\n") else rsp
-        #     rsp = rsp.replace("\n\n", "\n")
-        #     self.updateMessage(wxid, rsp, "assistant")
-        # except AuthenticationError:
-        #     self.LOG.error("OpenAI API 认证失败，请检查 API 密钥是否正确")
-        # except APIConnectionError:
-        #     self.LOG.error("无法连接到 OpenAI API，请检查网络连接")
-        # except APIError as e1:
-        #     self.LOG.error(f"OpenAI API 返回了错误：{str(e1)}")
         except Exception as e0:
             self.LOG.error(f"发生未知错误：{str(e0)}")
             try:
@@ -91,8 +72,8 @@ class ChatGPT():
         # 初始化聊天记录,组装系统信息
         if wxid not in self.conversation_list.keys():
             question_ = [
-                self.system_content_msg,
-                {"role": "system", "content": "" + time_mk + now_time}
+                # self.system_content_msg,
+                {"role": "system", "content": "你是一位微信群中的小助手，现在你要按照你渊博的知识，回答下面的问题，同时注意返回内容的格式，不要使用 markdown，换行使用 \\n换行，请以精炼的语言回答提出的问题" + time_mk + now_time}
             ]
             self.conversation_list[wxid] = question_
 
