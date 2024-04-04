@@ -34,7 +34,7 @@ class ChatGPT():
         self.model = conf.get("model", "gpt-3.5-turbo")
         self.LOG = logging.getLogger("ChatGPT")
         self.conversation_list = {}
-        # self.system_content_msg = {"role": "system", "content": "你是一位微信群中的小助手，现在你要按照你渊博的知识，回答下面的问题，同时注意返回内容的格式，不要使用 markdown，换行使用 \\n换行，请以精炼的语言回答提出的问题"}
+        self.system_content_msg = {"role": "system", "content": "你是一位微信群中的小助手，现在你要按照你渊博的知识，回答下面的问题，同时注意返回内容的格式，不要使用 markdown，换行使用 \\n换行，请以精炼的语言回答提出的问题"}
 
     def __repr__(self):
         return 'ChatGPT'
@@ -66,14 +66,14 @@ class ChatGPT():
         return rsp
 
     def updateMessage(self, wxid: str, question: str, role: str) -> None:
-        now_time = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        now_time = str(datetime.now().strftime("%Y-%m-%d / %H:%M:%S"))
 
         time_mk = "当需要回答时间时请直接参考回复:"
         # 初始化聊天记录,组装系统信息
         if wxid not in self.conversation_list.keys():
             question_ = [
-                # self.system_content_msg,
-                {"role": "system", "content": "你是一位微信群中的小助手，现在你要按照你渊博的知识，回答下面的问题，同时注意返回内容的格式，不要使用 markdown，换行使用 \\n换行，请以精炼的语言回答提出的问题" + time_mk + now_time}
+                self.system_content_msg,
+                {"role": "system", "content": "" + time_mk + now_time}
             ]
             self.conversation_list[wxid] = question_
 
