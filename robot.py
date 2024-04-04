@@ -7,6 +7,8 @@ import xml.etree.ElementTree as ET
 from queue import Empty
 from threading import Thread
 from base.func_zhipu import ZhiPu
+import requests
+import json
 
 from wcferry import Wcf, WxMsg
 
@@ -87,6 +89,38 @@ class Robot(Job):
         )
         return 
 
+    def handleNewGroupMessage(self, msg: WxMsg) -> bool:
+        msg_data = json.dumps(msg.__dict__)
+        # 设置HTTP接口的URL
+        url = "https://n8nn.zeabur.app/webhook/wc"
+
+        # 设置你要发送的头部信息，例如内容类型为JSON
+        headers = {
+            'Content-Type': 'application/json',
+            # 如果需要，你可能还需要添加其他头部信息，如认证令牌
+            # 'Authorization': 'Bearer YOUR_TOKEN_HERE'
+        }
+
+        # 发送POST请求
+        try:
+            response = requests.post(url, data=msg_data, headers=headers)
+
+            # 检查响应状态码
+            if response.status_code == 200:
+                # 请求成功，处理响应数据
+                print("Message sent successfully")
+                return True
+            else:
+                # 请求失败，打印错误信息
+                print(f"Failed to send message: {response.status_code}")
+                return False
+        except requests.exceptions.RequestException as e:
+            # 网络异常处理
+            print(f"An error occurred: {e}")
+            return False
+
+
+
     def toChengyu(self, msg: WxMsg) -> bool:
         """
         处理成语查询/接龙消息
@@ -153,7 +187,8 @@ class Robot(Job):
                 self.toAt(msg)
 
             else:  # 其他消息
-                self.toChengyu(msg)
+                # self.toChengyu(msg)
+                self.handleNewGroupMessage(msg)
 
             return  # 处理完群聊信息，后面就不需要处理了
 

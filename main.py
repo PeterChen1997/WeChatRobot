@@ -25,7 +25,7 @@ def send_message():
     # 这里可以使用全局变量 robot
     data = request.json
     message = data.get('message')
-    recipient = data.get('recipient', 'filehelper')  # 默认接收者为 'filehelper'
+    recipient = data.get('recipient')  # 默认接收者为 'filehelper'
     if message:
         robot.sendTextMsg(message, recipient)
         return jsonify({"status": "success", "msg": "Message sent"}), 200
@@ -33,7 +33,7 @@ def send_message():
         return jsonify({"status": "error", "msg": "Message is required"}), 400
 
 def run_flask_app():
-    app.run(port=8000, debug=True, use_reloader=False)
+    app.run(host='0.0.0.0', port=8008, debug=True, use_reloader=False)
 
 
 def weather_report(robot: Robot) -> None:
