@@ -26,8 +26,9 @@ def send_message():
     data = request.json
     message = data.get('message')
     recipient = data.get('recipient')  # 默认接收者为 'filehelper'
+    at_list = data.get('atList')  # 默认接收者为 'filehelper'
     if message:
-        robot.sendTextMsg(message, recipient)
+        robot.sendTextMsg(message, recipient, at_list)
         return jsonify({"status": "success", "msg": "Message sent"}), 200
     else:
         return jsonify({"status": "error", "msg": "Message is required"}), 400
