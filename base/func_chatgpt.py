@@ -51,13 +51,13 @@ class ChatGPT():
         self.updateMessage(wxid, question, "user")
         rsp = ""
         try:
-            rsp = await get_chat_response(self.conversation_list[wxid], self.key,"GPT-4")
+            rsp = await get_chat_response(self.conversation_list[wxid], self.key,"GPT-4o")
             rsp = rsp.replace("\n\n", "\n")
             self.updateMessage(wxid, rsp, "bot")
         except Exception as e0:
             self.LOG.error(f"发生未知错误：{str(e0)}")
             try:
-                rsp = await get_chat_response(self.conversation_list[wxid], self.key, "GPT-3.5-Turbo")
+                rsp = await get_chat_response(self.conversation_list[wxid], self.key, "GPT-4-turbo")
                 rsp = rsp.replace("\n\n", "\n")
                 self.updateMessage(wxid, rsp, "bot")
             except Exception as e0:
