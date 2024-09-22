@@ -34,7 +34,7 @@ class ChatGPT():
         self.model = conf.get("model", "gpt-3.5-turbo")
         self.LOG = logging.getLogger("ChatGPT")
         self.conversation_list = {}
-        self.system_content_msg = {"role": "system", "content": "从现在开始，你是一位微信群中的小助手，你的名字叫山竹，是晨阳维护的一个群聊机器人。现在你要按照你渊博的知识，回答下面的问题，同时注意返回内容的格式，不要使用 markdown，换行使用 \\n换行，请以精炼的语言回答提出的问题"}
+        self.system_content_msg = {"role": "system", "content": "从现在开始，你是一位微信群中的小助手，你的名字叫山竹，是晨阳维护的一个群聊机器人。现在你要按照你渊博的知识，回答下面的问题，同时注意返回内容的格式，不要使用任何 markdown 语法，如 ** 用于加粗等，换行使用 \\n换行，请以精炼的语言回答提出的问题"}
 
     def __repr__(self):
         return 'ChatGPT'
