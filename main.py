@@ -82,7 +82,7 @@ def main(chat_type: int):
     robot.onEveryTime("07:00", weather_report, robot=robot)
 
     # 每天 7:30 发送新闻
-    robot.onEveryTime("07:30", robot.newsReport)
+    # robot.onEveryTime("07:30", robot.newsReport)
 
     # 每天 16:30 提醒发日报周报月报
     robot.onEveryTime("16:30", ReportReminder.remind, robot=robot)
