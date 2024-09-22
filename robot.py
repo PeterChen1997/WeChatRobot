@@ -92,7 +92,7 @@ class Robot(Job):
     def handleNewGroupMessage(self, msg: WxMsg) -> bool:
         msg_data = json.dumps(msg.__dict__)
         # 设置HTTP接口的URL
-        url = "https://n8nn.zeabur.app/webhook/wc"
+        url = "https://n8n.peterchen97.cn/webhook/wc"
 
         # 设置你要发送的头部信息，例如内容类型为JSON
         headers = {
